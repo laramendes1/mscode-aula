@@ -10,12 +10,28 @@ class CpfCnpj
         $this->documento = $documento;
     }
 
-    public static function cpfNaoConfiavel(string $cpfNaoConfiavel): self
-    {
-        $valorNovo = preg_replace('/[^0-9]/', '', $cpfNaoConfiavel);
+    public static function cpfNaoConfiavel(string $input): self
+{
+    $digits = preg_replace('/\D+/', '', $input);
+    $len = strlen($digits);
 
-        return new self($valorNovo);
+    if ($len === 14) {
+        return new self($digits);
     }
+
+    if ($len <= 11) {
+        $cpf = str_pad($digits, 11, '0', STR_PAD_LEFT);
+        return new self($cpf);
+    }
+
+    throw new \InvalidArgumentException(
+        sprintf(
+          'Entrada inválida: "%s" (removido = %d dígitos)',
+          $input,
+          $len
+        )
+    );
+}
 
     public function getDocumento(): string
     {
